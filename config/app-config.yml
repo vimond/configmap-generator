@@ -1,0 +1,80 @@
+
+applications:
+  - name: vimond-docker-thumbor
+    prefixes:
+      - vimond_docker_thumbor
+  - name: event-writer-service
+    prefixes:
+      - oracle
+      - newrelic_apm
+      - number_of_kafka_partitions
+  - name: mbc-ingest-service
+    prefixes:
+      - mbc_ingest
+      - gatekeeper_password
+      - gatekeeper_user
+      - mbc_asset
+  - name: vimond-upload-service
+    prefixes:
+      - vimond_upload_service
+      - newrelic_apm_license
+  - name: vimond-video-monitoring-service
+    prefixes:
+      - oracle
+      - ext_vimond_video_monitoring
+      - newrelic_apm_license
+      - number_of_kafka_partitions
+      - video_monitoring_rest_api
+
+# vimondImageService:                 intmicros
+# vimond-image-bank-service:          intmicros
+# VimondAuditLogging:                 intmicros
+# VimondDeviceRegistrationService:    intmicros
+# VimondSearchService:                intmicros
+# vimond-firehose-service:            intmicros
+# EventWriterService:                 intmicros
+# VimondNotificationService:          intmicros
+# chucknorris-service:                intmicros
+# VideoLogService:                    intmicros
+# vimond-user-service:                intmicros
+# vimond-user-subprofile-service:     intmicros
+# vimond-connect-comment:             intmicros
+# vimond-eventpool-service:           intmicros
+# vimond-cache-invalidation-service:  intmicros
+# vimond-permission-service:          intmicros
+# vimond-middlelayer:                 intmicros
+# kafka-connect-elasticsearch-sink:   intmicros
+# vimond-numbers:                     intmicros
+# vimond-insights-ingestion:          intmicros
+# vimond-license-service:             nowhere
+# vimond-omnisportadapter-service:    extmicros
+# VimondWebhookService:               extmicros
+# VimondEventService:                 extmicros
+# VimondGatekeeper:                   extmicros
+# AssetImporterService:               extmicros
+# VimondUserViewingHistoryService:    extmicros
+# cms-frontend:                       nowhere
+# VimondRatingService:                extmicros
+# VimondPlaylistService:              extmicros
+# vimond-playout-service:             extmicros
+# VimondOAuthWebPortal:               extmicros
+# vimond-connect:                     extmicros
+# vimond-connect-search:              extmicros
+# vimond-numbers-proxy:               extmicros
+# vimond-license-proxy:               extmicros
+# vimond-reference-player:            extmicros
+# docker-thumbor:                     extmicros
+# VimondWidevineServer:               extmicros
+# VimondRestAPI:                      restapi
+# vimond-core-admin:                  restapi
+# vimond-cms:                         vcc
+# DemoVCC:                            vcc
+# vcc-approval:                       vcc
+# vcc-content-organizer:              vcc
+# vcc-user-profile:                   vcc
+# vcc-editorial:                      vcc
+# vcc-branding:                       vcc
+# vcc-video-monitoring:               vcc
+# vcc-curation:                       vcc
+
+
