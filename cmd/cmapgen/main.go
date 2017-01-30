@@ -6,6 +6,8 @@ import (
 	"gopkg.in/urfave/cli.v1"
 	"os"
 	"strings"
+	"errors"
+	"io/ioutil"
 )
 
 func check(e error) {
@@ -57,25 +59,44 @@ func main() {
 			Flags:   []cli.Flag {
 				cli.StringFlag{
 					Name: "name, n",
-					Usage: "`Name` of application",
+					Usage: "`Name` of application (required)",
 
 				},
 				cli.StringFlag{
 					Name: "environment, e",
-					Usage: "`Environment` to use",
+					Usage: "`Environment` to use (required)",
 					EnvVar: "CG_ENV",
 				},
 				cli.StringFlag{
 					Name: "ansible, a",
-					Usage: "`Folder` where vimond-ansible is",
+					Usage: "`Folder` where vimond-ansible is (required)",
 					EnvVar: "CG_VIMOND_ANSIBLE_FOLDER",
+				},
+				cli.StringFlag{
+					Name: "vault-password-file, p",
+					Usage: "load password from `VAULT_PASSWORD_FILE`",
+					EnvVar: "CG_VAULT_PASSWORD_FILE",
 				},
 			},
 			Action:  func(c *cli.Context) error {
+				name, err := checkRequiredArg("name", c.String("name"))
+				if err != nil {
+					return cli.NewExitError(err, 2)
+				}
+				env, err := checkRequiredArg("environment", c.String("environment"))
+				if err != nil {
+					return cli.NewExitError(err, 2)
+				}
+				ansible, err := checkRequiredArg("ansible", c.String("ansible"))
+				if err != nil {
+					return cli.NewExitError(err, 2)
+				}
+				vaultPassword := getVaultPassword(c.String("vault-password-file"))
+				fmt.Println(vaultPassword)
 				if !c.GlobalBool("noheader") {
 					fmt.Println("Generating configMap\n----------------------")
 				}
-				generateConfigMap(c.String("name"), c.String("environment"), c.String("ansible"))
+				generateConfigMap(name, env, ansible, vaultPassword)
 				return nil
 			},
 		},
@@ -83,15 +104,38 @@ func main() {
 	app.Run(os.Args)
 }
 
+func getVaultPassword(vaultPasswordFile string) (string) {
+	if vaultPasswordFile == "" {
+		return ""
+	} else {
+		data, err := ioutil.ReadFile(vaultPasswordFile)
+		check(err)
+		return strings.TrimSpace(string(data))
+	}
+}
+
+func checkRequiredArg(name, value string) (string, error) {
+	if value == "" {
+		msg := "Error: missing required argument: " + name
+		return "", errors.New(msg)
+	} else {
+		return value, nil
+	}
+}
+
 func listNames() {
 	appConfig := configmap_generator.LoadConfig()
 	fmt.Print(strings.Join(appConfig.AppNames(), "\n"))
 }
 
-func generateConfigMap(name, env, ansibleFolder string) {
+func generateConfigMap(name, env, ansibleFolder, vaultPassword string) {
 	appConfig := configmap_generator.LoadConfig()
 	allVars := configmap_generator.LoadVars(ansibleFolder, env)
 	vars := configmap_generator.FilterVariables(appConfig, allVars, name)
+	if vaultPassword != "" {
+		vaultVars := configmap_generator.DecryptVaultVars(ansibleFolder, env, vaultPassword)
+		vars = configmap_generator.SubstituteVaultVars(vars, vaultVars)
+	}
 	app := configmap_generator.ConfigMapData{
 		AppName: name,
 		Vars: vars,

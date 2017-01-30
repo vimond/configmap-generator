@@ -37,7 +37,7 @@ func loadVars(baseFolder, yamlFile string) (map[string]interface{}){
 	return all_vars
 }
 
-func combineMaps(maps ...map[string]interface{}) (map[string]interface{}){
+func combineMaps(maps ...map[string]interface{}) (map[string]interface{}) {
 	combined := make(map[string]interface{})
 	for _,m := range maps {
 		for k,v := range m {
