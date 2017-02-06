@@ -3,6 +3,8 @@ package configmap_generator
 import (
 	"io/ioutil"
 	"gopkg.in/yaml.v2"
+	"strings"
+	"github.com/pbthorste/avtool"
 )
 
 
@@ -13,28 +15,61 @@ Loads ansible variables for a given environment
 // Loads variables from the vimond-ansible project.
 // baseFolder: the location of the vimond-ansible project
 // env: the name of the environment to use
-func LoadVars(baseFolder, env string) (map[string]interface{}) {
-	allVars := loadAll(baseFolder)
-	envVars := loadEnv(baseFolder, env)
+func LoadVars(baseFolder, env, vaultPassword string) (map[string]interface{}) {
+	allVars := loadAll(baseFolder, vaultPassword)
+	envVars := loadEnv(baseFolder, env, vaultPassword)
 	return combineMaps(allVars, envVars)
 }
 
-func loadEnv(baseFolder, env string) (map[string]interface{}){
-	env_folder := "/vmp/group_vars/tag_Environment_" + env + "-vpc/general_vars.yml"
-	return loadVars(baseFolder, env_folder)
+func loadEnv(baseFolder, env, vaultPassword string) (map[string]interface{}){
+	return loadVarsInFolder(baseFolder +  "/tag_Environment_" + env + "-vpc", vaultPassword)
 }
 
-func loadAll(baseFolder string) (map[string]interface{}){
-	return loadVars(baseFolder, `/vmp/group_vars/all/vars.yaml`)
+func loadAll(baseFolder, vaultPassword string) (map[string]interface{}){
+	return loadVarsInFolder(baseFolder +  `/all`, vaultPassword)
 }
 
-func loadVars(baseFolder, yamlFile string) (map[string]interface{}){
-	data, err := ioutil.ReadFile(baseFolder + yamlFile)
-	check(err)
+
+func loadVarsInFolder(folder, vaultPassword string) (map[string]interface{}){
 	all_vars := make(map[string]interface{})
-	err = yaml.Unmarshal([]byte(data), &all_vars)
+	files, err := ioutil.ReadDir(folder)
 	check(err)
+	for _,v := range files {
+		current := folder + "/" +  v.Name()
+		data, err := ioutil.ReadFile(current)
+		check(err)
+		var vars map[string]interface{}
+		if checkIfVault(data) {
+			vars = decryptVault(current, vaultPassword)
+		} else {
+			vars = loadPlain(data)
+		}
+
+		all_vars = combineMaps(all_vars, vars)
+	}
+
 	return all_vars
+}
+
+func checkIfVault(fileContents []byte) (bool) {
+	contents := string(fileContents)
+	return strings.HasPrefix(contents, "$ANSIBLE_VAULT")
+}
+
+func loadPlain(fileContents []byte) (map[string]interface{}){
+	vars := make(map[string]interface{})
+	err := yaml.Unmarshal([]byte(fileContents), &vars)
+	check(err)
+	return vars
+}
+
+func decryptVault(vaultFile, vaultPassword string) (map[string]interface{}){
+	result, err := avtool.Decrypt(vaultFile, vaultPassword)
+	check(err)
+	vars := make(map[string]interface{})
+	err = yaml.Unmarshal([]byte(result), &vars)
+	check(err)
+	return vars
 }
 
 func combineMaps(maps ...map[string]interface{}) (map[string]interface{}) {

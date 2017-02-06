@@ -68,9 +68,9 @@ func main() {
 					EnvVar: "CG_ENV",
 				},
 				cli.StringFlag{
-					Name: "ansible, a",
-					Usage: "`Folder` where vimond-ansible is (required)",
-					EnvVar: "CG_VIMOND_ANSIBLE_FOLDER",
+					Name: "group-vars, g",
+					Usage: "`Folder` where group_vars reside (required)",
+					EnvVar: "CG_GROUP_VARS_FOLDER",
 				},
 				cli.StringFlag{
 					Name: "vault-password-file, p",
@@ -87,16 +87,15 @@ func main() {
 				if err != nil {
 					return cli.NewExitError(err, 2)
 				}
-				ansible, err := checkRequiredArg("ansible", c.String("ansible"))
+				groupVarsFolder, err := checkRequiredArg("group-vars", c.String("group-vars"))
 				if err != nil {
 					return cli.NewExitError(err, 2)
 				}
 				vaultPassword := getVaultPassword(c.String("vault-password-file"))
-				fmt.Println(vaultPassword)
 				if !c.GlobalBool("noheader") {
 					fmt.Println("Generating configMap\n----------------------")
 				}
-				generateConfigMap(name, env, ansible, vaultPassword)
+				generateConfigMap(name, env, groupVarsFolder, vaultPassword)
 				return nil
 			},
 		},
@@ -128,14 +127,13 @@ func listNames() {
 	fmt.Print(strings.Join(appConfig.AppNames(), "\n"))
 }
 
-func generateConfigMap(name, env, ansibleFolder, vaultPassword string) {
+func generateConfigMap(name, env, groupVarsFolder, vaultPassword string) {
 	appConfig := configmap_generator.LoadConfig()
-	allVars := configmap_generator.LoadVars(ansibleFolder, env)
+	allVars := configmap_generator.LoadVars(groupVarsFolder, env, vaultPassword)
+	allVars["service_name"] = name
+	allVars = configmap_generator.SubstituteVars(allVars)
 	vars := configmap_generator.FilterVariables(appConfig, allVars, name)
-	if vaultPassword != "" {
-		vaultVars := configmap_generator.DecryptVaultVars(ansibleFolder, env, vaultPassword)
-		vars = configmap_generator.SubstituteVaultVars(vars, vaultVars)
-	}
+
 	app := configmap_generator.ConfigMapData{
 		AppName: name,
 		Vars: vars,

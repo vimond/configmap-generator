@@ -4,9 +4,10 @@ import (
 	"testing"
 )
 
+
 func TestLoadAllVars(t *testing.T) {
-	baseFolder := "./testdata/ansible1"
-	allVars := loadAll(baseFolder)
+	baseFolder := "./testdata/ansible1/vmp/group_vars"
+	allVars := loadAll(baseFolder, "asdf")
 	if len(allVars) == 0 {
 		t.Error("Expected to find entries but did not find any: ")
 	}
@@ -16,8 +17,8 @@ func TestLoadAllVars(t *testing.T) {
 }
 
 func TestLoadEnvVars(t *testing.T) {
-	baseFolder := "./testdata/ansible1"
-	vars := loadEnv(baseFolder, "myenv")
+	baseFolder := "./testdata/ansible1/vmp/group_vars"
+	vars := loadEnv(baseFolder, "myenv", "asdf")
 	if len(vars) == 0 {
 		t.Error("Expected to find entries but did not find any: ")
 	}
@@ -27,8 +28,8 @@ func TestLoadEnvVars(t *testing.T) {
 }
 
 func TestLoadVars(t *testing.T) {
-	baseFolder := "./testdata/ansible1"
-	vars := LoadVars(baseFolder, "myenv")
+	baseFolder := "./testdata/ansible1/vmp/group_vars"
+	vars := LoadVars(baseFolder, "myenv", "asdf")
 	if len(vars) == 0 {
 		t.Error("Expected to find entries but did not find any: ")
 	}
@@ -36,3 +37,5 @@ func TestLoadVars(t *testing.T) {
 		t.Error("Expected artifactory_user to be: developer ")
 	}
 }
+
+

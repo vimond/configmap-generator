@@ -13,7 +13,6 @@ Filters variables for application
 
 func FilterVariables(appConfig *AppConfig, ansibleVars map[string]interface{}, appName string) (map[string]interface{}) {
 	prefixVars := filterByPrefix(appConfig, ansibleVars, appName)
-	prefixVars["service_name"] = appName
 	return prefixVars
 }
 
