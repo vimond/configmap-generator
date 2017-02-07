@@ -18,8 +18,6 @@ func check(e error) {
 
 func main() {
 
-	//configmap_generator.Vault()
-
 	app := cli.NewApp()
 	app.Name = "configmap-generator (cmapgen)"
 	app.Version = "1.0.0"
@@ -30,16 +28,6 @@ func main() {
 			Usage: "Do not show header",
 		},
 	}
-	/*
-	app.Action = func(c *cli.Context) error {
-		if c.Bool("list") {
-			listNames()
-		} else {
-			fmt.Println("tis false")
-		}
-		return nil
-	}
-	*/
 	app.Commands = []cli.Command{
 		{
 			Name:    "list",
@@ -59,7 +47,7 @@ func main() {
 			Flags:   []cli.Flag {
 				cli.StringFlag{
 					Name: "name, n",
-					Usage: "`Name` of application (required)",
+					Usage: "`Name` of application, or 'all' (required)",
 
 				},
 				cli.StringFlag{
@@ -82,6 +70,9 @@ func main() {
 				name, err := checkRequiredArg("name", c.String("name"))
 				if err != nil {
 					return cli.NewExitError(err, 2)
+				}
+				if !checkNameExists(name) && name != "all" {
+					return cli.NewExitError("Error: App not found: " + name, 2)
 				}
 				env, err := checkRequiredArg("environment", c.String("environment"))
 				if err != nil {
@@ -124,19 +115,47 @@ func checkRequiredArg(name, value string) (string, error) {
 
 func listNames() {
 	appConfig := configmap_generator.LoadConfig()
+	fmt.Println("all (to show all apps combined)")
 	fmt.Print(strings.Join(appConfig.AppNames(), "\n"))
+}
+
+func checkNameExists(name string) (bool) {
+	exists := false
+	for _,v := range configmap_generator.LoadConfig().AppNames() {
+		if v == name {
+			exists = true
+		}
+	}
+	return exists
 }
 
 func generateConfigMap(name, env, groupVarsFolder, vaultPassword string) {
 	appConfig := configmap_generator.LoadConfig()
 	allVars := configmap_generator.LoadVars(groupVarsFolder, env, vaultPassword)
+	var result string
+	if name != "all" {
+		result = getConfigMap(name, allVars, appConfig)
+	} else {
+		result = getAllConfigMaps(allVars, appConfig)
+	}
+	fmt.Println(result)
+}
+
+func getConfigMap(name string, allVars map[string]interface{}, appConfig *configmap_generator.AppConfig) (string) {
 	allVars["service_name"] = name
 	allVars = configmap_generator.SubstituteVars(allVars)
 	vars := configmap_generator.FilterVariables(appConfig, allVars, name)
-
 	app := configmap_generator.ConfigMapData{
 		AppName: name,
 		Vars: vars,
 	}
-	configmap_generator.Generate(app)
+	return configmap_generator.Generate(app)
+}
+
+func getAllConfigMaps(allVars map[string]interface{}, appConfig *configmap_generator.AppConfig) (string) {
+	configMaps := make([]string, len(appConfig.Applications))
+	for i, v := range appConfig.Applications {
+		configMaps[i] = getConfigMap(v.Name, allVars, appConfig)
+	}
+	return strings.Join(configMaps, "---\n")
 }

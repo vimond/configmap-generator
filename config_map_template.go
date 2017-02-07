@@ -2,7 +2,7 @@ package configmap_generator
 
 import (
 	"text/template"
-	"os"
+	"bytes"
 )
 
 type ConfigMapData struct {
@@ -10,9 +10,11 @@ type ConfigMapData struct {
 	Vars map[string]interface{}
 }
 
-func Generate(data ConfigMapData)  {
+func Generate(data ConfigMapData) (string)  {
 	tmpl, err := template.New("ConfigMap.tmpl").ParseFiles("config/ConfigMap.tmpl")
 	if err != nil { panic(err) }
-	err = tmpl.Execute(os.Stdout, data)
+	var doc bytes.Buffer
+	err = tmpl.Execute(&doc, data)
 	if err != nil { panic(err) }
+	return doc.String()
 }
