@@ -1,3 +1,3 @@
-artifactory_user: "developer1"
+artifactory_user: "developer2"
 artifactory_email: "developers@vimond.com"
 artifactory_registry: "vimond-docker-dockerv2-local.artifactoryonline.com"

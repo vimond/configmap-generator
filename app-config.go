@@ -5,12 +5,22 @@ import (
 	"gopkg.in/yaml.v2"
 	"log"
 	"sort"
+	"os"
 )
 
-func check(e error) {
-	if e != nil {
-		log.Fatalf("error: %v", e)
-		panic(e)
+func check(err error) {
+	if(err != nil) {
+		log.Printf("error: %v", err)
+		panic(err)
+	}
+}
+
+func checkErrs(errs []error) {
+	if errs != nil && len(errs) > 0{
+		for _, error := range errs {
+			log.Printf("error: %v", error)
+		}
+		os.Exit(1)
 	}
 }
 type Application struct {
