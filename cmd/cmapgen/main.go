@@ -23,6 +23,13 @@ func main() {
 	app.Version = "1.0.0"
 	app.Usage = "Generates config maps for Kubernetes from Ansible"
 	app.Flags = []cli.Flag {
+		cli.StringFlag{
+			Name: "config, c",
+			Usage: "Application config file to use",
+			EnvVar: "CG_APP_CFG",
+			Value: "./config/app-config.yml",
+			
+		},
 		cli.BoolFlag{
 			Name: "noheader, H",
 			Usage: "Do not show header",
@@ -32,14 +39,7 @@ func main() {
 		{
 			Name:    "list",
 			Usage:   "list supported apps",
-			Action:  func(c *cli.Context) error {
-				if !c.GlobalBool("noheader") {
-					fmt.Println("Supported applications\n----------------------")
-				}
-
-				listNames()
-				return nil
-			},
+			Action:  listNames,
 		},
 		{
 			Name: "generate",
@@ -71,7 +71,8 @@ func main() {
 				if err != nil {
 					return cli.NewExitError(err, 2)
 				}
-				if !checkNameExists(name) && name != "all" {
+				config := configmap_generator.New(c.GlobalString("config"))
+				if !config.CheckNameExists(name) && name != "all" {
 					return cli.NewExitError("Error: App not found: " + name, 2)
 				}
 				env, err := checkRequiredArg("environment", c.String("environment"))
@@ -86,7 +87,7 @@ func main() {
 				if !c.GlobalBool("noheader") {
 					fmt.Println("Generating configMap\n----------------------")
 				}
-				generateConfigMap(name, env, groupVarsFolder, vaultPassword)
+				generateConfigMap(name, env, groupVarsFolder, vaultPassword, config)
 				return nil
 			},
 		},
@@ -113,24 +114,21 @@ func checkRequiredArg(name, value string) (string, error) {
 	}
 }
 
-func listNames() {
-	appConfig := configmap_generator.LoadConfig()
-	fmt.Println("all (to show all apps combined)")
-	fmt.Print(strings.Join(appConfig.AppNames(), "\n"))
-}
-
-func checkNameExists(name string) (bool) {
-	exists := false
-	for _,v := range configmap_generator.LoadConfig().AppNames() {
-		if v == name {
-			exists = true
-		}
+func listNames(c *cli.Context, appConfig *configmap_generator.AppConfig) error{
+	if !c.GlobalBool("noheader") {
+		fmt.Println("Supported applications\n----------------------")
+		fmt.Println("all (to show all apps combined)")
 	}
-	return exists
+	
+	
+	
+	fmt.Print(strings.Join(appConfig.AppNames(), "\n"))
+	return nil
 }
 
-func generateConfigMap(name, env, groupVarsFolder, vaultPassword string) {
-	appConfig := configmap_generator.LoadConfig()
+
+func generateConfigMap(name, env, groupVarsFolder, vaultPassword string, appConfig *configmap_generator.AppConfig) {
+	
 	allVars := configmap_generator.LoadVars(groupVarsFolder, env, vaultPassword)
 	var result string
 	if name != "all" {

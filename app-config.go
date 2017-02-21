@@ -41,8 +41,18 @@ func (a *AppConfig) AppNames() []string {
 	return names
 }
 
-func LoadConfig() (*AppConfig) {
-	data, err := ioutil.ReadFile(`./config/app-config.yml`)
+func (a *AppConfig) CheckNameExists(name string) (bool) {
+	for _, appName := range a.AppNames() {
+		if (name == appName) {
+			return true
+		}
+	}
+	return false
+}
+
+
+func New(configPath string) (*AppConfig) {
+	data, err := ioutil.ReadFile(configPath)
 	check(err)
 	a := AppConfig{}
 	err = yaml.Unmarshal([]byte(data), &a)
