@@ -1,3 +1,4 @@
+var_only_in_all: "the_var"
 artifactory_user: "developer"
 artifactory_email: "developers@vimond.com"
 artifactory_registry: "vimond-docker-dockerv2-local.artifactoryonline.com"

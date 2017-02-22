@@ -17,7 +17,12 @@ func check(e error) {
 }
 
 func main() {
-
+	groupVarsFlag := cli.StringFlag{
+		Name: "group-vars, g",
+		Usage: "`Folder` where group_vars reside (required)",
+		EnvVar: "CG_GROUP_VARS_FOLDER",
+	}
+	
 	app := cli.NewApp()
 	app.Name = "configmap-generator (cmapgen)"
 	app.Version = "1.0.0"
@@ -35,11 +40,28 @@ func main() {
 			Usage: "Do not show header",
 		},
 	}
+	
 	app.Commands = []cli.Command{
 		{
 			Name:    "list",
 			Usage:   "list supported apps",
-			Action:  listNames,
+			Action:  func(c *cli.Context) error {
+				config := configmap_generator.New(c.GlobalString("config"))
+				return listNames(c, config)
+			},
+		},
+		{
+			Name:    "prefixes",
+			Usage:   "list sorted prefixes in the var store",
+			Action:  listPrefixes,
+			Flags: []cli.Flag{
+				cli.IntFlag{
+					Name: "levels, l",
+					Usage: "How many `_` to nest prefixes",
+					Value: 1,
+				},
+				groupVarsFlag,
+			},
 		},
 		{
 			Name: "generate",
@@ -55,11 +77,7 @@ func main() {
 					Usage: "`Environment` to use (required)",
 					EnvVar: "CG_ENV",
 				},
-				cli.StringFlag{
-					Name: "group-vars, g",
-					Usage: "`Folder` where group_vars reside (required)",
-					EnvVar: "CG_GROUP_VARS_FOLDER",
-				},
+				groupVarsFlag,
 				cli.StringFlag{
 					Name: "vault-password-file, p",
 					Usage: "load password from `VAULT_PASSWORD_FILE`",
@@ -114,13 +132,24 @@ func checkRequiredArg(name, value string) (string, error) {
 	}
 }
 
+func listPrefixes(c *cli.Context) error{
+	groupVarsFolder, err := checkRequiredArg("group-vars", c.String("group-vars"))
+	if err != nil {
+		return cli.NewExitError(err, 2)
+	}
+	
+	prefixes, err := configmap_generator.SuggestConfig(groupVarsFolder, c.Int("levels"))
+	fmt.Println(strings.Join(prefixes, "\n"))
+	
+	return err
+}
+
+
 func listNames(c *cli.Context, appConfig *configmap_generator.AppConfig) error{
 	if !c.GlobalBool("noheader") {
 		fmt.Println("Supported applications\n----------------------")
 		fmt.Println("all (to show all apps combined)")
 	}
-	
-	
 	
 	fmt.Print(strings.Join(appConfig.AppNames(), "\n"))
 	return nil

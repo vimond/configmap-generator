@@ -25,6 +25,16 @@ applications:
       - newrelic_apm_license
       - number_of_kafka_partitions
       - video_monitoring_rest_api
+  - name: vimond-vcc-all
+    prefixes:
+      - vcc_
+      - vimond_cms_
+      - cms_
+      - artifactory_
+      - kafka_broker_
+      - kafka_change_
+      - kafka_default_
+
 
 # vimondImageService:                 intmicros
 # vimond-image-bank-service:          intmicros
