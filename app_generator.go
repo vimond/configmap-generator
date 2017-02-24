@@ -21,7 +21,7 @@ func matchKey(key string, levels int) string {
 	return  prefix + postfix
 }
 
-func extractVarPrefixes(env map[string]interface{}, levels int) []string {
+func extractVarPrefixes(env Variables, levels int) []string {
 	
 	keyMap := make(map[string]bool)
 	

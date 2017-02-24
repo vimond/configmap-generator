@@ -1,24 +1,25 @@
 package configmap_generator
 
 import (
-	"reflect"
+	//"reflect"
 	"strings"
 	"regexp"
 	"os"
+	"reflect"
 )
 
 /*
 Some basic variable substitution for the ansible map
  */
 
-func SubstituteVars(vars map[string]interface{}) (map[string]interface{}) {
+func SubstituteVars(vars Variables) (Variables) {
 	for k,v := range vars {
 		if reflect.TypeOf(v) != reflect.TypeOf("string") {
 			// only supports strings at this time
 			// could support maps later
 			continue
 		}
-		value := v.(string)
+		value := v.String()
 		if !strings.Contains(value, "{{") {
 			// no ansible var found
 			continue
@@ -31,7 +32,7 @@ func SubstituteVars(vars map[string]interface{}) (map[string]interface{}) {
 				os.Stderr.WriteString("Var not found: " + value + "\n")
 			}
 		} else {
-			replaceStringVars(value, vars)
+			//replaceStringVars(value, vars)
 		}
 	}
 	return vars

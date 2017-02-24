@@ -168,7 +168,7 @@ func generateConfigMap(name, env, groupVarsFolder, vaultPassword string, appConf
 	fmt.Println(result)
 }
 
-func getConfigMap(name string, allVars map[string]interface{}, appConfig *configmap_generator.AppConfig) (string) {
+func getConfigMap(name string, allVars configmap_generator.Variables, appConfig *configmap_generator.AppConfig) (string) {
 	allVars["service_name"] = name
 	allVars = configmap_generator.SubstituteVars(allVars)
 	vars := configmap_generator.FilterVariables(appConfig, allVars, name)
@@ -179,7 +179,7 @@ func getConfigMap(name string, allVars map[string]interface{}, appConfig *config
 	return configmap_generator.Generate(app)
 }
 
-func getAllConfigMaps(allVars map[string]interface{}, appConfig *configmap_generator.AppConfig) (string) {
+func getAllConfigMaps(allVars configmap_generator.Variables, appConfig *configmap_generator.AppConfig) (string) {
 	configMaps := make([]string, len(appConfig.Applications))
 	for i, v := range appConfig.Applications {
 		configMaps[i] = getConfigMap(v.Name, allVars, appConfig)
