@@ -6,19 +6,21 @@ import (
 	"fmt"
 	"strings"
 	"os"
+	"k8s.io/kops/_vendor/github.com/docker/docker/pkg/testutil/assert"
 )
 
 
 func TestSubstituteVars1(t *testing.T) {
-	vars := make(map[string]interface{})
-	vars["key1"] = "value1"
-	vars["key2"] = "{{ key1 }}"
+	vars := make(Variables)
+	vars["key1"] = VarVal("value1")
+	vars["key2"] = VarVal("{{ key1 }}")
 
-	result := SubstituteVars(vars)
-	if result["key2"] != result["key1"] {
-		t.Error("Expected vars to be equal")
-	}
+	result := vars.SubstituteVars()
+	assert.Equal(t, result["key2"], result["key1"])
+	
 }
+
+//TODO Test lookup from VarVal to SecretVarVal
 
 func TestExtractLookupString(t *testing.T) {
 	testString := `'env', "AWS_ACCESS_KEY_ID"`

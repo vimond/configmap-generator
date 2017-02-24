@@ -24,7 +24,7 @@ func TestLoadEnvVars(t *testing.T) {
 	}
 	
 	//val := -
-	actual := string(vars["artifactory_user"])
+	actual := vars["artifactory_user"].String()
 	assert.Equal(t, actual, string(SecretVarVal("developer1")))
 	//if vars["artifactory_user"] != VarVal("devloper1") {
 	//	t.Error("Expected artifactory_user to be: developer1")

@@ -169,7 +169,7 @@ func generateConfigMap(name, env, groupVarsFolder, vaultPassword string, appConf
 }
 
 func getConfigMap(name string, allVars configmap_generator.Variables, appConfig *configmap_generator.AppConfig) (string) {
-	allVars["service_name"] = name
+	allVars["service_name"] = configmap_generator.VarVal(name)
 	allVars = configmap_generator.SubstituteVars(allVars)
 	vars := configmap_generator.FilterVariables(appConfig, allVars, name)
 	app := configmap_generator.ConfigMapData{

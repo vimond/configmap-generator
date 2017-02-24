@@ -5,20 +5,22 @@ import (
 	"strings"
 	"regexp"
 	"os"
-	"reflect"
+	//"reflect"
+	//"fmt"
 )
 
 /*
 Some basic variable substitution for the ansible map
  */
 
-func SubstituteVars(vars Variables) (Variables) {
+func (vars Variables) SubstituteVars() (Variables) {
 	for k,v := range vars {
-		if reflect.TypeOf(v) != reflect.TypeOf("string") {
-			// only supports strings at this time
-			// could support maps later
-			continue
-		}
+		//if reflect.TypeOf(v) != reflect.TypeOf("string") {
+		//	// only supports strings at this time
+		//	// could support maps later
+		//	fmt.Printf("Skipping, not string type: %v", v)
+		//	continue
+		//}
 		value := v.String()
 		if !strings.Contains(value, "{{") {
 			// no ansible var found
@@ -32,7 +34,7 @@ func SubstituteVars(vars Variables) (Variables) {
 				os.Stderr.WriteString("Var not found: " + value + "\n")
 			}
 		} else {
-			//replaceStringVars(value, vars)
+			replaceStringVars(value, vars)
 		}
 	}
 	return vars
@@ -56,7 +58,7 @@ func getAllAnsibleVars(value string) ([]string) {
 	return ansibleVarFinder.FindAllString(value, -1)
 }
 
-func replaceStringVars(value string, vars map[string]interface{}) (string) {
+func replaceStringVars(value string, vars Variables) (string) {
 	updated := value
 	updated = replaceRegularVars(updated, vars)
 	updated = replaceLookups(updated)

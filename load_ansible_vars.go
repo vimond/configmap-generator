@@ -94,6 +94,7 @@ type Secret interface {
 	IsSecret() bool
 	String() string
 }
+
 func (SecretVarVal) IsSecret() bool{
 	return true
 }
@@ -112,6 +113,7 @@ func (vars Variables) AddAll(other Variables)  {
 			vars[k] = v
 		}
 }
+
 //func (item T) compare(other Comparable) int {
 //
 //}

@@ -11,13 +11,13 @@ Filters variables for application
 
 
 
-func FilterVariables(appConfig *AppConfig, ansibleVars map[string]interface{}, appName string) (map[string]interface{}) {
+func FilterVariables(appConfig *AppConfig, ansibleVars Variables, appName string) (Variables) {
 	prefixVars := filterByPrefix(appConfig, ansibleVars, appName)
 	return prefixVars
 }
 
-func filterByPrefix(appConfig *AppConfig, ansibleVars map[string]interface{}, appName string) (map[string]interface{}) {
-	vars := make(map[string]interface{})
+func filterByPrefix(appConfig *AppConfig, ansibleVars Variables, appName string) (Variables) {
+	vars := make(Variables)
 	app := getApplication(appConfig, appName)
 	for _,v := range app.Prefixes {
 		prefixMap := getVarsByPrefix(ansibleVars, v)
@@ -38,8 +38,8 @@ func getApplication(appConfig *AppConfig, appName string) (*Application) {
 	panic(fmt.Sprintf("Error - could not find application: %v", appName))
 }
 
-func getVarsByPrefix(ansibleVars map[string]interface{}, prefix string) (map[string]interface{}) {
-	vars := make(map[string]interface{})
+func getVarsByPrefix(ansibleVars Variables, prefix string) (Variables) {
+	vars := make(Variables)
 	for k,v := range ansibleVars {
 		if strings.HasPrefix(k, prefix) {
 			vars[k] = v

@@ -7,7 +7,7 @@ import (
 
 type ConfigMapData struct {
 	AppName string
-	Vars map[string]interface{}
+	Vars Variables
 }
 
 func Generate(data ConfigMapData) (string)  {
