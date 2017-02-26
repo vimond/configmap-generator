@@ -10,6 +10,9 @@ import (
 	"io/ioutil"
 )
 
+var Version string
+
+
 func check(e error) {
 	if e != nil {
 		panic(e)
@@ -25,7 +28,7 @@ func main() {
 	
 	app := cli.NewApp()
 	app.Name = "configmap-generator (cmapgen)"
-	app.Version = "1.0.0"
+	app.Version = Version
 	app.Usage = "Generates config maps for Kubernetes from Ansible"
 	app.Flags = []cli.Flag {
 		cli.StringFlag{
