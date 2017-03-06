@@ -13,8 +13,8 @@ import (
 Some basic variable substitution for the ansible map
  */
 
-func (vars Variables) SubstituteVars() (Variables) {
-	for k,v := range vars {
+func (vars *Variables) SubstituteVars() (*Variables) {
+	for k,v := range vars.getVars() {
 		//if reflect.TypeOf(v) != reflect.TypeOf("string") {
 		//	// only supports strings at this time
 		//	// could support maps later
@@ -28,8 +28,8 @@ func (vars Variables) SubstituteVars() (Variables) {
 		}
 
 		if isPure, ok := getPlainAnsibleVar(value); ok {
-			if replace, ok := vars[isPure]; ok {
-				vars[k] = replace
+			if replace, ok := vars.getVars()[isPure]; ok {
+				vars.getVars()[k] = replace
 			} else {
 				os.Stderr.WriteString("Var not found: " + value + "\n")
 			}
@@ -58,9 +58,9 @@ func getAllAnsibleVars(value string) ([]string) {
 	return ansibleVarFinder.FindAllString(value, -1)
 }
 
-func replaceStringVars(value string, vars Variables) (string) {
+func replaceStringVars(value string, vars *Variables) (string) {
 	updated := value
-	updated = replaceRegularVars(updated, vars)
+	updated = replaceRegularVars(updated, vars.getVars())
 	updated = replaceLookups(updated)
 	return updated
 }

@@ -1,4 +1,5 @@
 
+
 applications:
   - name: vimond-docker-thumbor
     prefixes:

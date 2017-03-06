@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strings"
-
+	
 	"github.com/pbthorste/avtool"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
@@ -19,7 +19,7 @@ Loads ansible variables for a given environment
 // Loads variables from the vimond-ansible project.
 // baseFolder: the location of the vimond-ansible project
 // env: the name of the environment to use
-func LoadVars(baseFolder, env, vaultPassword string) Variables {
+func LoadVars(baseFolder, env, vaultPassword string) *Variables {
 	return loadEnv(createPathAlternatives(baseFolder, env), vaultPassword)
 }
 
@@ -35,13 +35,20 @@ func createPathAlternatives(baseFolder, env string) []string {
 	}
 }
 
-func loadEnv(searchPaths []string, vaultPassword string) Variables {
+func NewVars(secure bool) *Variables {
+	return &Variables{
+		secure: secure,
+		vars: make(map[string]Variable),
+	}
+}
 
-	envVars := make(Variables)
+func loadEnv(searchPaths []string, vaultPassword string) *Variables {
+	
+	envVars := NewVars(false)
 	//var envVars map[string]interface{}
 	
 	e := make([]error, len(searchPaths))
-
+	
 	//Use walker and visitor instead
 	for _, path := range searchPaths {
 		filepath.Walk(path, func(path string, f os.FileInfo, err error) error {
@@ -61,8 +68,8 @@ func loadEnv(searchPaths []string, vaultPassword string) Variables {
 	}
 	return envVars
 }
- 
-func loadVarsInFile (current, vaultPassword string) (Variables, error) {
+
+func loadVarsInFile(current, vaultPassword string) (*Variables, error) {
 	data, err := ioutil.ReadFile(current)
 	if err != nil {
 		return nil, err
@@ -76,48 +83,55 @@ func loadVarsInFile (current, vaultPassword string) (Variables, error) {
 		
 	} else {
 		//vars, err = loadPlain2(data)
-		return  loadPlain(data)
+		return loadPlain(data)
 	}
 	//return vars, err
 }
 
+type Variables struct {
+	//secure bool
+	vars   map[string]Variable
+}
 
-type Variables map[string]Secret
 
-type PlainVariables map[string]VarVal
-type SecVariables map[string]SecretVarVal
+func (vv *Variables) getVars() map[string]Variable {
+	return vv.vars
+}
+
+//type PlainVariables map[string]VarVal
+//type SecVariables map[string]SecretVarVal
 
 type VarVal string
 type SecretVarVal string
 
-type Secret interface {
+type Variable interface {
 	IsSecret() bool
 	String() string
 }
 
-func (SecretVarVal) IsSecret() bool{
+func (SecretVarVal) IsSecret() bool {
 	return true
 }
-func (VarVal) IsSecret() bool{
+func (VarVal) IsSecret() bool {
 	return false
 }
-func (s SecretVarVal) String() string{
+func (s SecretVarVal) String() string {
 	return string(s)
 }
 
-func (v VarVal) String() string{
+func (v VarVal) String() string {
 	return string(v)
 }
-func (vars Variables) AddAll(other Variables)  {
-		for k, v := range other {
-			vars[k] = v
-		}
+func (vars Variables) AddAll(other *Variables) {
+	for k, v := range other.getVars() {
+		vars.getVars()[k] = v
+	}
 }
 
 //func (item T) compare(other Comparable) int {
 //
 //}
-	
+
 
 func checkIfVault(fileContents []byte) bool {
 	contents := string(fileContents)
@@ -130,28 +144,28 @@ func checkIfVault(fileContents []byte) bool {
 //	return vars, err
 //}
 
-func loadPlain(fileContents []byte) (Variables, error) {
+func loadPlain(fileContents []byte) (*Variables, error) {
 	var plainVars PlainVariables
-	var vars Variables = Variables{}
+	var vars *Variables = NewVars(false)
 	err := yaml.Unmarshal([]byte(fileContents), &plainVars)
 	for key, value := range plainVars {
-		vars[key] = value
+		vars.getVars()[key] = value
 	}
 	return vars, err
 }
 
-func decryptVault(vaultFile, vaultPassword string) (Variables, error) {
+func decryptVault(vaultFile, vaultPassword string) (*Variables, error) {
 	result, err := avtool.Decrypt(vaultFile, vaultPassword)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Problems decrypting '%v', passsphrase correct?", vaultFile)
 	}
-	var secVars SecVariables
-	var vars Variables = Variables{}
+	//var secVars SecVariables
+	var vars *Variables = NewVars(true)
 	
-	err = yaml.Unmarshal([]byte(result), &secVars)
-	for key, value := range secVars {
-		vars[key] = value
-	}
+	err = yaml.Unmarshal([]byte(result), &vars)
+	//for key, value := range secVars {
+	//	vars[key] = value
+	//}
 	return vars, err
 }
 
