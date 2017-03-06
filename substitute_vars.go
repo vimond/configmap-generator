@@ -16,6 +16,7 @@ func SubstituteVars(vars map[string]interface{}) (map[string]interface{}) {
 		if reflect.TypeOf(v) != reflect.TypeOf("string") {
 			// only supports strings at this time
 			// could support maps later
+			//os.Stderr.WriteString(fmt.Sprintf("Var '%v' not string type: '%v'", v, reflect.TypeOf(v)))
 			continue
 		}
 		value := v.(string)
@@ -24,8 +25,8 @@ func SubstituteVars(vars map[string]interface{}) (map[string]interface{}) {
 			continue
 		}
 
-		if isPure, ok := getPlainAnsibleVar(value); ok {
-			if replace, ok := vars[isPure]; ok {
+		if varReference, ok := getPlainAnsibleVar(value); ok {
+			if replace, ok := vars[varReference]; ok {
 				vars[k] = replace
 			} else {
 				os.Stderr.WriteString("Var not found: " + value + "\n")
@@ -38,9 +39,9 @@ func SubstituteVars(vars map[string]interface{}) (map[string]interface{}) {
 
 }
 
+var pureVal = regexp.MustCompile(`^\{\{\s*?([\w]*?)\s*?}}$`)
 
 func getPlainAnsibleVar(value string) (string, bool) {
-	pureVal := regexp.MustCompile(`^\{\{\s*?([\w]*?)\s*?}}$`)
 	if !pureVal.MatchString(value) {
 		return "", false
 	} else {
@@ -50,8 +51,8 @@ func getPlainAnsibleVar(value string) (string, bool) {
 
 // Gets all ansible vars of the type {{ something }} contained in a string.
 // Returns an empty list if nothing is found
+var ansibleVarFinder = regexp.MustCompile(`\{\{.*?}}`)
 func getAllAnsibleVars(value string) ([]string) {
-	ansibleVarFinder := regexp.MustCompile(`\{\{.*?}}`)
 	return ansibleVarFinder.FindAllString(value, -1)
 }
 
@@ -105,7 +106,7 @@ func (local *AnsibleLookup) Equals(other *AnsibleLookup) bool {
 
 
 func getLookup(variable string) (*AnsibleLookup, bool) {
-	lookupFinder := regexp.MustCompile(`\{\{\s*?lookup\((.*)?\)\s*?}}$`)
+	var lookupFinder = regexp.MustCompile(`\{\{\s*?lookup\((.*)?\)\s*?}}$`)
 	result := lookupFinder.FindAllStringSubmatch(variable, -1)
 	if len(result) != 0 {
 		data := result[0][1]

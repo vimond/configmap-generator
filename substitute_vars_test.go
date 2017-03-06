@@ -6,19 +6,47 @@ import (
 	"fmt"
 	"strings"
 	"os"
+	"github.com/stretchr/testify/assert"
 )
-
 
 func TestSubstituteVars1(t *testing.T) {
 	vars := make(map[string]interface{})
 	vars["key1"] = "value1"
 	vars["key2"] = "{{ key1 }}"
-
+	
 	result := SubstituteVars(vars)
 	if result["key2"] != result["key1"] {
 		t.Error("Expected vars to be equal")
 	}
 }
+
+func TestLookupWhenSourcedFromFiles(t *testing.T) {
+	baseFolder := "./testdata/ansible1/vmp/group_vars"
+	vars := SubstituteVars(LoadVars(baseFolder, "myenv", "asdf"))
+	
+	assert.NotEmpty(t, vars, "Expected to find entries but did not find any ")
+	assert.Equal(t, "secret stuff 1", vars["secret_reference"], "Secret not properly loaded")
+	
+}
+
+func TestLookupPrecedenceWhenSourcedFromFiles_myenv(t *testing.T) {
+	baseFolder := "./testdata/ansible1/vmp/group_vars"
+	vars := SubstituteVars(LoadVars(baseFolder, "myenv", "asdf"))
+	
+	assert.NotEmpty(t, vars, "Expected to find entries but did not find any ")
+	assert.Equal(t, "myenv_lookup_secret", vars["general_repeated_lookup"], "Secret not properly loaded")
+	
+}
+
+func TestLookupPrecedenceWhenSourcedFromFiles_myenv2(t *testing.T) {
+	baseFolder := "./testdata/ansible1/vmp/group_vars"
+	vars := SubstituteVars(LoadVars(baseFolder, "myenv2", "asdf"))
+	
+	assert.NotEmpty(t, vars, "Expected to find entries but did not find any ")
+	assert.Equal(t, "all_lookup_secret", vars["general_repeated_lookup"], "Secret not properly loaded")
+	
+}
+
 
 func TestExtractLookupString(t *testing.T) {
 	testString := `'env', "AWS_ACCESS_KEY_ID"`
@@ -45,7 +73,7 @@ func TestGetLookup1(t *testing.T) {
 
 func TestReplaceLookups1(t *testing.T) {
 	testString := "{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}"
-
+	
 	result := replaceLookups(testString)
 	if result != testString {
 		t.Error("strings should be equal")
@@ -56,13 +84,12 @@ func TestReplaceLookups2(t *testing.T) {
 	expected := "a-key"
 	os.Setenv("AWS_ACCESS_KEY_ID", expected)
 	testString := "{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}"
-
+	
 	result := replaceLookups(testString)
 	if result != expected {
 		t.Error("strings should be equal")
 	}
 }
-
 
 func TestGetPlainAnsibleVar(t *testing.T) {
 	expected := "my_var"
@@ -72,7 +99,7 @@ func TestGetPlainAnsibleVar(t *testing.T) {
 		t.Error("Function should have worked")
 	}
 	if result != expected {
-		t.Error(fmt.Sprintf("Expected : %v, but got: %v",expected, result))
+		t.Error(fmt.Sprintf("Expected : %v, but got: %v", expected, result))
 	}
 }
 
@@ -81,7 +108,7 @@ func TestGetAllAnsibleVars1(t *testing.T) {
 	result := getAllAnsibleVars(tester)
 	if len(result) != 0 {
 		t.Error("Function should have not returned but did:" +
-			 strings.Join(result, ","))
+			strings.Join(result, ","))
 	}
 }
 
@@ -98,7 +125,7 @@ func TestReplaceRegularVars1(t *testing.T) {
 	vars := make(map[string]interface{})
 	vars["key1"] = "value1"
 	tester := "{{ key1 }}"
-
+	
 	result := replaceRegularVars(tester, vars)
 	if result != vars["key1"] {
 		t.Error(fmt.Sprintf("expected: %v, but got %v", vars["key1]"], result))
@@ -109,7 +136,7 @@ func TestReplaceRegularVars2(t *testing.T) {
 	vars := make(map[string]interface{})
 	vars["key1"] = "value1"
 	tester := "{{ key2 }}"
-
+	
 	result := replaceRegularVars(tester, vars)
 	if result != tester {
 		t.Error(fmt.Sprintf("expected: %v, but got %v", tester, result))

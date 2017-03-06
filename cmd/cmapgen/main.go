@@ -187,5 +187,5 @@ func getAllConfigMaps(allVars map[string]interface{}, appConfig *configmap_gener
 	for i, v := range appConfig.Applications {
 		configMaps[i] = getConfigMap(v.Name, allVars, appConfig)
 	}
-	return strings.Join(configMaps, "---\n")
+	return strings.Join(configMaps, "\n")
 }

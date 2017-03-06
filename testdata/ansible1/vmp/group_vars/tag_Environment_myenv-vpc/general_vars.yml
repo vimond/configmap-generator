@@ -1,3 +1,8 @@
 artifactory_user: "developer1"
 artifactory_email: "developers@vimond.com"
 artifactory_registry: "vimond-docker-dockerv2-local.artifactoryonline.com"
+secret_reference: "{{ secret1 }}"
+
+
+
+general_repeated_lookup: "{{ vaulted_general_lookup }}"

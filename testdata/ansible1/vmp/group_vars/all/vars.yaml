@@ -7,4 +7,4 @@ artifactory_password: "{{ vaulted_artifactory_password }}"
 base_ami_id_rsa_pub: >
   ssh-rsa MyPublicKey base-ami
 
-
+general_repeated_lookup: "{{ vaulted_general_lookup }}"

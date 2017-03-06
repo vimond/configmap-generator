@@ -1,9 +1,10 @@
+---
 kind: ConfigMap
 apiVersion: v1
 metadata:
   name: {{ .AppName }}
-  namespace: default
-  configVersion: v1
+  labels:
+    configVersion: v1
 data:
 {{ range $key, $value := .Vars }}  {{ $key }}: {{ $value }}
 {{ end }}

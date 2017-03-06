@@ -39,6 +39,14 @@ func TestLoadEnvFromFileShortName(t *testing.T) {
 	assert.NotEmpty(t,vars, "Expected to find entries but did not find any")
 }
 
+func TestLoadSecretVars(t *testing.T) {
+	baseFolder := "./testdata/ansible1/vmp/group_vars"
+	vars := LoadVars(baseFolder, "myenv", "asdf")
+	assert.NotEmpty(t, vars, "Expected to find entries but did not find any ")
+	assert.Equal(t, "{{ secret1 }}", vars["secret_reference"], "Secret not properly loaded")
+}
+
+
 func TestLoadVars(t *testing.T) {
 	baseFolder := "./testdata/ansible1/vmp/group_vars"
 	vars := LoadVars(baseFolder, "myenv", "asdf")
