@@ -24,6 +24,6 @@ Might be some rough edges still, but should mainly work.
 
 Plans are:
 * be able to create several types of config items
-* * docker `pull secrets`
-* * plain `secrets`
+    * docker `pull secrets`
+    * plain `secrets`
 * automatically split out variables derived from secrets into `secrets`
