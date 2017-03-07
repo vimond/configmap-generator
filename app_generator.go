@@ -2,8 +2,8 @@ package configmap_generator
 
 import (
 	"strings"
-	"k8s.io/kops/_vendor/github.com/pkg/errors"
 	"k8s.io/kubernetes/pkg/util/slice"
+	"errors"
 )
 
 const sep = "_"

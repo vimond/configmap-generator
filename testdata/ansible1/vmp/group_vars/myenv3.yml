@@ -1,3 +1,13 @@
 artifactory_user: "developer3"
 artifactory_email: "developers@vimond.com"
 artifactory_registry: "vimond-docker-dockerv2-local.artifactoryonline.com"
+
+string_lookup: "The developer is {{ artifactory_user }}"
+multiline_complex_preformatted: |
+  - id: sns
+        config:
+          type: sns
+          snsTopicArn: "arn:aws:sns:eu-central-1:1234567890:content-updates-notification"
+          aws:
+            key: "{{ artifactory_user }}"
+            region: "eu-central-1"

@@ -47,6 +47,31 @@ func TestLookupPrecedenceWhenSourcedFromFiles_myenv2(t *testing.T) {
 	
 }
 
+func TestLookupSimpleInlineStringVars(t *testing.T) {
+	baseFolder := "./testdata/ansible1/vmp/group_vars"
+	loadVars := LoadVars(baseFolder, "myenv3", "asdf")
+	substituted := replaceStringVars(loadVars["string_lookup"].(string), loadVars)
+	
+	assert.Contains(t, substituted, "developer3")
+}
+
+func TestLookupComplexInlineStringVars(t *testing.T) {
+	baseFolder := "./testdata/ansible1/vmp/group_vars"
+	loadVars := LoadVars(baseFolder, "myenv3", "asdf")
+	substituted := replaceStringVars(loadVars["multiline_complex_preformatted"].(string), loadVars)
+	
+	assert.Contains(t, substituted, "developer3")
+}
+
+
+func TestLookupComplexMultilinePeformatted_myenv3(t *testing.T) {
+	baseFolder := "./testdata/ansible1/vmp/group_vars"
+	vars := SubstituteVars(LoadVars(baseFolder, "myenv3", "asdf"))
+	
+	assert.NotEmpty(t, vars, "Expected to find entries but did not find any ")
+	assert.Contains(t, vars["multiline_complex_preformatted"], "developer3")
+}
+
 
 func TestExtractLookupString(t *testing.T) {
 	testString := `'env', "AWS_ACCESS_KEY_ID"`

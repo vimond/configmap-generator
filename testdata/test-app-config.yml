@@ -1,0 +1,8 @@
+applications:
+  - name: test
+    prefixes:
+      - artifactory_
+      - string_
+      - multiline_
+      - secret_
+      - base

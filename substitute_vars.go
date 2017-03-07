@@ -32,7 +32,7 @@ func SubstituteVars(vars map[string]interface{}) (map[string]interface{}) {
 				os.Stderr.WriteString("Var not found: " + value + "\n")
 			}
 		} else {
-			replaceStringVars(value, vars)
+			vars[k] = replaceStringVars(value, vars)
 		}
 	}
 	return vars
