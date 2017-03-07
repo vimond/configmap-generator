@@ -8,10 +8,11 @@ import (
 
 type ConfigMapData struct {
 	AppName string
-	Vars map[string]interface{}
+	Data string
 }
 
 func Generate(data ConfigMapData) (string)  {
+
 	tmpl, err := template.New("ConfigMap.tmpl").Funcs(sprig.TxtFuncMap()).ParseFiles("config/ConfigMap.tmpl")
 	if err != nil { panic(err) }
 	var doc bytes.Buffer

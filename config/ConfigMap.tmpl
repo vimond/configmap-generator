@@ -6,5 +6,4 @@ metadata:
   labels:
     configVersion: v1
 data:
-{{ range $key, $value := .Vars }}  {{ $key }}: {{ if typeIsLike "string" $value }}{{ $value }}{{ else }}"{{ $value }}"{{ end }}
-{{ end }}
+{{ .Data | indent 2}}

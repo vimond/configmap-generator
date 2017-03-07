@@ -3,6 +3,11 @@ artifactory_email: "developers@vimond.com"
 artifactory_registry: "vimond-docker-dockerv2-local.artifactoryonline.com"
 
 string_lookup: "The developer is {{ artifactory_user }}"
+
+multiline_simple_gt: >
+  line one
+  line two
+
 multiline_complex_preformatted: |
   - id: sns
         config:

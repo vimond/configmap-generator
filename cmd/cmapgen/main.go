@@ -8,6 +8,7 @@ import (
 	"strings"
 	"errors"
 	"io/ioutil"
+	"gopkg.in/yaml.v2"
 )
 
 var Version string
@@ -175,10 +176,12 @@ func getConfigMap(name string, allVars map[string]interface{}, appConfig *config
 	allVars["service_name"] = name
 	allVars = configmap_generator.SubstituteVars(allVars)
 	vars := configmap_generator.FilterVariables(appConfig, allVars, name)
+	vars2,_ := yaml.Marshal(vars)
 	app := configmap_generator.ConfigMapData{
 		AppName: name,
-		Vars: vars,
+		Data: string(vars2[:]),
 	}
+
 	return configmap_generator.Generate(app)
 }
 
