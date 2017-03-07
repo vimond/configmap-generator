@@ -5,6 +5,7 @@ import (
 	"strings"
 	"regexp"
 	"os"
+	"fmt"
 )
 
 /*
@@ -17,6 +18,9 @@ func SubstituteVars(vars map[string]interface{}) (map[string]interface{}) {
 			// only supports strings at this time
 			// could support maps later
 			//os.Stderr.WriteString(fmt.Sprintf("Var '%v' not string type: '%v'", v, reflect.TypeOf(v)))
+			vars[k] = fmt.Sprintf("%v", v)
+
+			//No macros or lookups in non-strings, move on
 			continue
 		}
 		value := v.(string)

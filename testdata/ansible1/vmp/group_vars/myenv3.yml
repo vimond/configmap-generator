@@ -3,6 +3,14 @@ artifactory_email: "developers@vimond.com"
 artifactory_registry: "vimond-docker-dockerv2-local.artifactoryonline.com"
 
 string_lookup: "The developer is {{ artifactory_user }}"
+string_boolean: false
+string_int:  5
+string_arr:
+  - 5
+  - 6
+string_dict:
+  a: 5
+  b: 6
 
 multiline_simple_gt: >
   line one
@@ -16,3 +24,6 @@ multiline_complex_preformatted: |
           aws:
             key: "{{ artifactory_user }}"
             region: "eu-central-1"
+
+
+string_with_json: "[{'value': 'vimond', 'label': 'Vimond' }, {'value': 'acme', 'label': 'Acme Inc.'}, {'value': 'galentest', 'label': 'Galen Test'}]"

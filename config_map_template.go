@@ -3,7 +3,6 @@ package configmap_generator
 import (
 	"text/template"
 	"bytes"
-	"github.com/Masterminds/sprig"
 )
 
 type ConfigMapData struct {
@@ -13,7 +12,7 @@ type ConfigMapData struct {
 
 func Generate(data ConfigMapData) (string)  {
 
-	tmpl, err := template.New("ConfigMap.tmpl").Funcs(sprig.TxtFuncMap()).ParseFiles("config/ConfigMap.tmpl")
+	tmpl, err := template.New("ConfigMap.tmpl").ParseFiles("config/ConfigMap.tmpl")
 	if err != nil { panic(err) }
 	var doc bytes.Buffer
 	err = tmpl.Execute(&doc, data)

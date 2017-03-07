@@ -47,11 +47,22 @@ func TestLookupPrecedenceWhenSourcedFromFiles_myenv2(t *testing.T) {
 	
 }
 
+func TestNonStringsConverted(t *testing.T) {
+	baseFolder := "./testdata/ansible1/vmp/group_vars"
+	vars := SubstituteVars(LoadVars(baseFolder, "myenv3", "asdf"))
+
+	assert.IsType(t,"string", vars["string_boolean"], "%v", vars["string_boolean"])
+	assert.IsType(t,"string", vars["string_arr"], "%v", vars["string_arr"])
+	assert.IsType(t,"string", vars["string_dict"], "%v", vars["string_dict"])
+	assert.IsType(t,"string", vars["string_int"], "%v", vars["string_int"])
+
+}
+
 func TestLookupSimpleInlineStringVars(t *testing.T) {
 	baseFolder := "./testdata/ansible1/vmp/group_vars"
 	loadVars := LoadVars(baseFolder, "myenv3", "asdf")
 	substituted := replaceStringVars(loadVars["string_lookup"].(string), loadVars)
-	
+
 	assert.Contains(t, substituted, "developer3")
 }
 
