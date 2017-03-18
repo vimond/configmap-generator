@@ -1,6 +1,6 @@
 VERSION = $(shell git describe --tags --always)
 DATE = $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
-NAME = $DOCKER_PRIVATE_REPO/k8s-configmap-generator
+NAME = $(DOCKER_PRIVATE_REPO)/k8s-configmap-generator
 .PHONY: build test tag_latest release ssh
 
 build:
