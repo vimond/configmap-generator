@@ -109,7 +109,7 @@ func main() {
 				if !c.GlobalBool("noheader") {
 					fmt.Println("Generating configMap\n----------------------")
 				}
-				generateConfigMap(name, env, groupVarsFolder, vaultPassword, config)
+				fmt.Println(generateConfigMap(name, env, groupVarsFolder, vaultPassword, config))
 				return nil
 			},
 		},
@@ -160,7 +160,7 @@ func listNames(c *cli.Context, appConfig *configmap_generator.AppConfig) error{
 }
 
 
-func generateConfigMap(name, env, groupVarsFolder, vaultPassword string, appConfig *configmap_generator.AppConfig) {
+func generateConfigMap(name, env, groupVarsFolder, vaultPassword string, appConfig *configmap_generator.AppConfig) (string){
 	
 	allVars := configmap_generator.LoadVars(groupVarsFolder, env, vaultPassword)
 	var result string
@@ -169,7 +169,7 @@ func generateConfigMap(name, env, groupVarsFolder, vaultPassword string, appConf
 	} else {
 		result = getAllConfigMaps(allVars, appConfig)
 	}
-	fmt.Println(result)
+	return result
 }
 
 func getConfigMap(name string, allVars map[string]interface{}, appConfig *configmap_generator.AppConfig) (string) {
