@@ -14,8 +14,8 @@ go run cmd/cmapgen/main.go -H  generate -n all -e env \
     -p ~/.ansible/vault_password.txt  | kubectl apply -n dev   -f -
 
 #test
-go run cmd/cmapgen/main.go -H  generate -n all -e myenv3 \
-    -c testdata/test-app-config.yml \
+go run cmd/cmapgen/main.go -H  -c testdata/test-app-config.yml \
+    generate -n all -e myenv3 \
     -g ./testdata/ansible1/vmp/group_vars \
     -p ./testdata/ansible1/vmp/test-secret.txt  
 ```

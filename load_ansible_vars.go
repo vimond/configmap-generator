@@ -87,7 +87,7 @@ func loadPlain(fileContents []byte) (map[string]interface{}, error) {
 }
 
 func decryptVault(vaultFile, vaultPassword string) (map[string]interface{}, error) {
-	result, err := avtool.Decrypt(vaultFile, vaultPassword)
+	result, err := avtool.DecryptFile(vaultFile, vaultPassword)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Problems decrypting '%v', passsphrase correct?", vaultFile)
 	}
