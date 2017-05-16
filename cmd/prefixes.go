@@ -9,10 +9,6 @@ import (
 	"github.com/vimond/configmap-generator/generator"
 )
 
-var (
-	nestedLevels	int
-	groupVars	string
-)
 
 var prefixesCmd = &cobra.Command{
 	Use:   "prefixes",
@@ -24,22 +20,28 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := listPrefixes(); err != nil {
+		groupVars, err := cmd.Flags().GetString("group-vars")
+		if err != nil {
+			log.Fatal(err)
+		}
+		levels, err := cmd.Flags().GetInt("levels")
+		if err != nil {
+			log.Fatal(err)
+		}
+		if err := listPrefixes(groupVars, levels); err != nil {
 			log.Fatal(err)
 		}
 	},
 }
 
 func init() {
-	prefixesCmd.Flags().StringVarP(
-		&groupVars,
+	prefixesCmd.Flags().StringP(
 		"group-vars",
 		"g",
 		"",
 		"`Folder` where group_vars reside (required)",
 	)
-	prefixesCmd.Flags().IntVarP(
-		&nestedLevels,
+	prefixesCmd.Flags().IntP(
 		"levels",
 		"l",
 		1,
@@ -48,14 +50,11 @@ func init() {
 	RootCmd.AddCommand(prefixesCmd)
 }
 
-func listPrefixes() error{
-	err := checkRequiredArg("group-vars", groupVars)
-	if err != nil {
+func listPrefixes(groupVars string, nestedLevels int) (err error) {
+	if err := checkRequiredArg("group-vars", groupVars); err != nil {
 		return err
 	}
-
 	prefixes, err := configmap_generator.SuggestConfig(groupVars, nestedLevels)
 	fmt.Println(strings.Join(prefixes, "\n"))
-
-	return err
+	return
 }

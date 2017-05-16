@@ -7,16 +7,14 @@ import (
 	"strings"
 
 	"io/ioutil"
-	"gopkg.in/yaml.v2"
 
 	"github.com/spf13/cobra"
-	"github.com/vimond/configmap-generator/generator"
+	configmap_generator "github.com/vimond/configmap-generator/generator"
 )
 
 var (
-	appName           string
-	environment       string
-	vaultPasswordFile string
+	config			configmap_generator.GeneratorConfig
+	vaultPasswordFile	string
 )
 
 // generateCmd represents the generate command
@@ -30,33 +28,35 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := checkRequiredArg("name", appName); err != nil {
+		var err error
+
+		if err = checkRequiredArg("name", config.AppName); err != nil {
 			log.Fatal(err)
 		}
-		config, err := configmap_generator.New(cfgFile)
+		config.AppConfig, err = configmap_generator.New(cfgFile)
 		if err != nil {
 			log.Fatal(err)
 		}
-		if !config.CheckNameExists(appName) && appName != "all" {
-			log.Fatal(errors.New("Error: App not found: " + appName))
+		if !config.AppConfig.CheckNameExists(config.AppName) && config.AppName != "all" {
+			log.Fatal(errors.New("Error: App not found: " + config.AppName))
 		}
-		if err := checkRequiredArg("environment", environment); err != nil {
+		if err = checkRequiredArg("environment", config.Environment); err != nil {
 			log.Fatal(err)
 		}
-		if err := checkRequiredArg("group-vars", groupVars); err != nil {
+		if err = checkRequiredArg("group-vars", config.GroupVars); err != nil {
 			log.Fatal(err)
 		}
-		if err := checkRequiredArg("vault-password-file", vaultPasswordFile); err != nil {
+		if err = checkRequiredArg("vault-password-file", vaultPasswordFile); err != nil {
 			log.Fatal(err)
 		}
-		vaultPassword, err := getVaultPassword(vaultPasswordFile)
+		config.VaultPassword, err = getVaultPassword(vaultPasswordFile)
 		if err != nil {
 			log.Fatal(err)
 		}
 		if !noHeader {
 			fmt.Println("Generating configMap\n----------------------")
 		}
-		result, err := generateConfigMap(appName, environment, groupVars, vaultPassword, config)
+		result, err := config.GenerateConfigMap()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -66,21 +66,21 @@ to quickly create a Cobra application.`,
 
 func init() {
 	generateCmd.Flags().StringVarP(
-		&groupVars,
+		&config.GroupVars,
 		"group-vars",
 		"g",
 		"",
 		"`FOLDER` where group_vars reside (required)",
 	)
 	generateCmd.Flags().StringVarP(
-		&appName,
+		&config.AppName,
 		"name",
 		"n",
 		"",
 		"`NAME` of application, or 'all' (required)",
 	)
 	generateCmd.Flags().StringVarP(
-		&environment,
+		&config.Environment,
 		"environment",
 		"e",
 		"",
@@ -95,60 +95,6 @@ func init() {
 	)
 	RootCmd.AddCommand(generateCmd)
 }
-
-func generateConfigMap(name, env, groupVarsFolder, vaultPassword string, appConfig *configmap_generator.AppConfig) (string, error){
-
-	allVars, err := configmap_generator.LoadVars(groupVarsFolder, env, vaultPassword)
-	if err != nil {
-		return "", err
-	}
-
-	var result string
-	if name != "all" {
-		result, err = getConfigMap(name, allVars, appConfig)
-
-		if err != nil {
-			return "", err
-		}
-	} else {
-		result, err = getAllConfigMaps(allVars, appConfig)
-		if err != nil {
-			return "", err
-		}
-	}
-	return result, nil
-}
-
-func getConfigMap(name string, allVars map[string]interface{}, appConfig *configmap_generator.AppConfig) (string, error) {
-	allVars["service_name"] = name
-	allVars = configmap_generator.SubstituteVars(allVars)
-	vars := configmap_generator.FilterVariables(appConfig, allVars, name)
-	vars2,_ := yaml.Marshal(vars)
-	app := configmap_generator.ConfigMapData{
-		AppName: name,
-		Data: string(vars2[:]),
-	}
-
-	return configmap_generator.Generate(app)
-}
-
-func getAllConfigMaps(allVars map[string]interface{}, appConfig *configmap_generator.AppConfig) (string, error) {
-	var err error
-	errs := make([]string, 0)
-	configMaps := make([]string, len(appConfig.Applications))
-
-	for i, v := range appConfig.Applications {
-		configMaps[i], err = getConfigMap(v.Name, allVars, appConfig)
-		if err != nil {
-			errs = append(errs, fmt.Sprintf("%v", err))
-		}
-	}
-	if len(errs) > 0 {
-		return "", errors.New(strings.Join(errs, "\n"))
-	}
-	return strings.Join(configMaps, "\n"), nil
-}
-
 
 func checkRequiredArg(name, value string) (err error) {
 	if value == "" {
