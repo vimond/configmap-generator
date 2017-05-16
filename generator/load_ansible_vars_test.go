@@ -17,7 +17,10 @@ func loadedAllVars(t *testing.T, allVars map[string]interface{}  ) {
 
 func TestLoadEnvVars(t *testing.T) {
 	baseFolder := "../testdata/ansible1/vmp/group_vars"
-	vars := LoadVars(baseFolder, "myenv", "asdf")
+	vars, err := LoadVars(baseFolder, "myenv", "asdf")
+	if err != nil {
+		t.Errorf("Error running 'LoadVars': ", err)
+	}
 	if len(vars) == 0 {
 		t.Error("Expected to find entries but did not find any: ")
 	}
@@ -29,19 +32,28 @@ func TestLoadEnvVars(t *testing.T) {
 
 func TestLoadEnvFromFile(t *testing.T) {
 	baseFolder := "../testdata/ansible1/vmp/group_vars"
-	vars := LoadVars(baseFolder, "myenv2", "asdf")
+	vars, err := LoadVars(baseFolder, "myenv2", "asdf")
+	if err != nil {
+		t.Errorf("Error running 'LoadVars': ", err)
+	}
 	assert.NotEmpty(t,vars, "Expected to find entries but did not find any")
 }
 
 func TestLoadEnvFromFileShortName(t *testing.T) {
 	baseFolder := "../testdata/ansible1/vmp/group_vars"
-	vars := LoadVars(baseFolder, "myenv3.yml", "asdf")
+	vars, err := LoadVars(baseFolder, "myenv3.yml", "asdf")
+	if err != nil {
+		t.Errorf("Error running 'LoadVars': ", err)
+	}
 	assert.NotEmpty(t,vars, "Expected to find entries but did not find any")
 }
 
 func TestLoadSecretVars(t *testing.T) {
 	baseFolder := "../testdata/ansible1/vmp/group_vars"
-	vars := LoadVars(baseFolder, "myenv", "asdf")
+	vars, err := LoadVars(baseFolder, "myenv", "asdf")
+	if err != nil {
+		t.Errorf("Error running 'LoadVars': ", err)
+	}
 	assert.NotEmpty(t, vars, "Expected to find entries but did not find any ")
 	assert.Equal(t, "{{ secret1 }}", vars["secret_reference"], "Secret not properly loaded")
 }
@@ -49,7 +61,10 @@ func TestLoadSecretVars(t *testing.T) {
 
 func TestLoadVars(t *testing.T) {
 	baseFolder := "../testdata/ansible1/vmp/group_vars"
-	vars := LoadVars(baseFolder, "myenv", "asdf")
+	vars, err := LoadVars(baseFolder, "myenv", "asdf")
+	if err != nil {
+		t.Errorf("Error running 'LoadVars': ", err)
+	}
 	if len(vars) == 0 {
 		t.Error("Expected to find entries but did not find any: ")
 	}

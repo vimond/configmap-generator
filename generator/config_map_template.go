@@ -11,12 +11,16 @@ type ConfigMapData struct {
 	Data string
 }
 
-func Generate(data ConfigMapData) (string)  {
+func Generate(data ConfigMapData) (string, error)  {
 
 	tmpl, err := template.New("ConfigMap.tmpl").Funcs(sprig.TxtFuncMap()).ParseFiles("config/ConfigMap.tmpl")
-	if err != nil { panic(err) }
+	if err != nil {
+		return "", err
+	}
 	var doc bytes.Buffer
 	err = tmpl.Execute(&doc, data)
-	if err != nil { panic(err) }
-	return doc.String()
+	if err != nil {
+		return "", err
+	}
+	return doc.String(), nil
 }

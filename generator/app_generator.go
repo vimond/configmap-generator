@@ -43,7 +43,10 @@ func SuggestConfig(baseDir string, levels int) ([]string, error) {
 		return nil, errors.New("Levels must be gt 0")
 	}
 	
-	env := loadEnv([]string{baseDir}, "skipping-vault-loading")
+	env, err := loadEnv([]string{baseDir}, "skipping-vault-loading")
+	if err != nil {
+		return []string{}, err
+	}
 	
 	return extractVarPrefixes(env, levels), nil
 	

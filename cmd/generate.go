@@ -33,7 +33,10 @@ to quickly create a Cobra application.`,
 		if err := checkRequiredArg("name", appName); err != nil {
 			log.Fatal(err)
 		}
-		config := configmap_generator.New(cfgFile)
+		config, err := configmap_generator.New(cfgFile)
+		if err != nil {
+			log.Fatal(err)
+		}
 		if !config.CheckNameExists(appName) && appName != "all" {
 			log.Fatal(errors.New("Error: App not found: " + appName))
 		}
@@ -53,7 +56,11 @@ to quickly create a Cobra application.`,
 		if !noHeader {
 			fmt.Println("Generating configMap\n----------------------")
 		}
-		fmt.Println(generateConfigMap(appName, environment, groupVars, vaultPassword, config))
+		result, err := generateConfigMap(appName, environment, groupVars, vaultPassword, config)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(result)
 	},
 }
 
@@ -89,19 +96,30 @@ func init() {
 	RootCmd.AddCommand(generateCmd)
 }
 
-func generateConfigMap(name, env, groupVarsFolder, vaultPassword string, appConfig *configmap_generator.AppConfig) (string){
+func generateConfigMap(name, env, groupVarsFolder, vaultPassword string, appConfig *configmap_generator.AppConfig) (string, error){
 
-	allVars := configmap_generator.LoadVars(groupVarsFolder, env, vaultPassword)
+	allVars, err := configmap_generator.LoadVars(groupVarsFolder, env, vaultPassword)
+	if err != nil {
+		return "", err
+	}
+
 	var result string
 	if name != "all" {
-		result = getConfigMap(name, allVars, appConfig)
+		result, err = getConfigMap(name, allVars, appConfig)
+
+		if err != nil {
+			return "", err
+		}
 	} else {
-		result = getAllConfigMaps(allVars, appConfig)
+		result, err = getAllConfigMaps(allVars, appConfig)
+		if err != nil {
+			return "", err
+		}
 	}
-	return result
+	return result, nil
 }
 
-func getConfigMap(name string, allVars map[string]interface{}, appConfig *configmap_generator.AppConfig) (string) {
+func getConfigMap(name string, allVars map[string]interface{}, appConfig *configmap_generator.AppConfig) (string, error) {
 	allVars["service_name"] = name
 	allVars = configmap_generator.SubstituteVars(allVars)
 	vars := configmap_generator.FilterVariables(appConfig, allVars, name)
@@ -114,12 +132,21 @@ func getConfigMap(name string, allVars map[string]interface{}, appConfig *config
 	return configmap_generator.Generate(app)
 }
 
-func getAllConfigMaps(allVars map[string]interface{}, appConfig *configmap_generator.AppConfig) (string) {
+func getAllConfigMaps(allVars map[string]interface{}, appConfig *configmap_generator.AppConfig) (string, error) {
+	var err error
+	errs := make([]string, 0)
 	configMaps := make([]string, len(appConfig.Applications))
+
 	for i, v := range appConfig.Applications {
-		configMaps[i] = getConfigMap(v.Name, allVars, appConfig)
+		configMaps[i], err = getConfigMap(v.Name, allVars, appConfig)
+		if err != nil {
+			errs = append(errs, fmt.Sprintf("%v", err))
+		}
 	}
-	return strings.Join(configMaps, "\n")
+	if len(errs) > 0 {
+		return "", errors.New(strings.Join(errs, "\n"))
+	}
+	return strings.Join(configMaps, "\n"), nil
 }
 
 

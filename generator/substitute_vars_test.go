@@ -22,7 +22,11 @@ func TestSubstituteVars1(t *testing.T) {
 
 func TestLookupWhenSourcedFromFiles(t *testing.T) {
 	baseFolder := "../testdata/ansible1/vmp/group_vars"
-	vars := SubstituteVars(LoadVars(baseFolder, "myenv", "asdf"))
+	loadVars, err := LoadVars(baseFolder, "myenv", "asdf")
+	if err != nil {
+		t.Errorf("Error running 'LoadVars': %v", err)
+	}
+	vars := SubstituteVars(loadVars)
 	
 	assert.NotEmpty(t, vars, "Expected to find entries but did not find any ")
 	assert.Equal(t, "secret stuff 1", vars["secret_reference"], "Secret not properly loaded")
@@ -31,7 +35,11 @@ func TestLookupWhenSourcedFromFiles(t *testing.T) {
 
 func TestLookupPrecedenceWhenSourcedFromFiles_myenv(t *testing.T) {
 	baseFolder := "../testdata/ansible1/vmp/group_vars"
-	vars := SubstituteVars(LoadVars(baseFolder, "myenv", "asdf"))
+	loadVars, err := LoadVars(baseFolder, "myenv", "asdf")
+	if err != nil {
+		t.Errorf("Error running 'LoadVars': %v", err)
+	}
+	vars := SubstituteVars(loadVars)
 	
 	assert.NotEmpty(t, vars, "Expected to find entries but did not find any ")
 	assert.Equal(t, "myenv_lookup_secret", vars["general_repeated_lookup"], "Secret not properly loaded")
@@ -40,7 +48,11 @@ func TestLookupPrecedenceWhenSourcedFromFiles_myenv(t *testing.T) {
 
 func TestLookupPrecedenceWhenSourcedFromFiles_myenv2(t *testing.T) {
 	baseFolder := "../testdata/ansible1/vmp/group_vars"
-	vars := SubstituteVars(LoadVars(baseFolder, "myenv2", "asdf"))
+	loadVars, err := LoadVars(baseFolder, "myenv2", "asdf")
+	if err != nil {
+		t.Errorf("Error running 'LoadVars': %v", err)
+	}
+	vars := SubstituteVars(loadVars)
 	
 	assert.NotEmpty(t, vars, "Expected to find entries but did not find any ")
 	assert.Equal(t, "all_lookup_secret", vars["general_repeated_lookup"], "Secret not properly loaded")
@@ -49,7 +61,11 @@ func TestLookupPrecedenceWhenSourcedFromFiles_myenv2(t *testing.T) {
 
 func TestNonStringsConverted(t *testing.T) {
 	baseFolder := "../testdata/ansible1/vmp/group_vars"
-	vars := SubstituteVars(LoadVars(baseFolder, "myenv3", "asdf"))
+	loadVars, err := LoadVars(baseFolder, "myenv3", "asdf")
+	if err != nil {
+		t.Errorf("Error running 'LoadVars': %v", err)
+	}
+	vars := SubstituteVars(loadVars)
 
 	assert.IsType(t,"string", vars["string_boolean"], "%v", vars["string_boolean"])
 	assert.IsType(t,"string", vars["string_arr"], "%v", vars["string_arr"])
@@ -60,7 +76,10 @@ func TestNonStringsConverted(t *testing.T) {
 
 func TestLookupSimpleInlineStringVars(t *testing.T) {
 	baseFolder := "../testdata/ansible1/vmp/group_vars"
-	loadVars := LoadVars(baseFolder, "myenv3", "asdf")
+	loadVars, err := LoadVars(baseFolder, "myenv3", "asdf")
+	if err != nil {
+		t.Errorf("Error running 'LoadVars': %v", err)
+	}
 	substituted := replaceStringVars(loadVars["string_lookup"].(string), loadVars)
 
 	assert.Contains(t, substituted, "developer3")
@@ -68,7 +87,10 @@ func TestLookupSimpleInlineStringVars(t *testing.T) {
 
 func TestLookupComplexInlineStringVars(t *testing.T) {
 	baseFolder := "../testdata/ansible1/vmp/group_vars"
-	loadVars := LoadVars(baseFolder, "myenv3", "asdf")
+	loadVars, err := LoadVars(baseFolder, "myenv3", "asdf")
+	if err != nil {
+		t.Errorf("Error running 'LoadVars': %v", err)
+	}
 	substituted := replaceStringVars(loadVars["multiline_complex_preformatted"].(string), loadVars)
 	
 	assert.Contains(t, substituted, "developer3")
@@ -77,7 +99,11 @@ func TestLookupComplexInlineStringVars(t *testing.T) {
 
 func TestLookupComplexMultilinePeformatted_myenv3(t *testing.T) {
 	baseFolder := "../testdata/ansible1/vmp/group_vars"
-	vars := SubstituteVars(LoadVars(baseFolder, "myenv3", "asdf"))
+	loadVars, err := LoadVars(baseFolder, "myenv3", "asdf")
+	if err != nil {
+		t.Errorf("Error running 'LoadVars': %v", err)
+	}
+	vars := SubstituteVars(loadVars)
 	
 	assert.NotEmpty(t, vars, "Expected to find entries but did not find any ")
 	assert.Contains(t, vars["multiline_complex_preformatted"], "developer3")

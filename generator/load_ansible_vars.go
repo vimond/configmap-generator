@@ -19,7 +19,7 @@ Loads ansible variables for a given environment
 // Loads variables from the vimond-ansible project.
 // baseFolder: the location of the vimond-ansible project
 // env: the name of the environment to use
-func LoadVars(baseFolder, env, vaultPassword string) map[string]interface{} {
+func LoadVars(baseFolder, env, vaultPassword string) (map[string]interface{}, error) {
 	return loadEnv(createPathAlternatives(baseFolder, env), vaultPassword)
 }
 
@@ -36,17 +36,17 @@ func createPathAlternatives(baseFolder, env string) []string {
 }
 
 
-func loadEnv(searchPaths []string, vaultPassword string) map[string]interface{} {
+func loadEnv(searchPaths []string, vaultPassword string) (map[string]interface{}, error) {
 
 	var envVars map[string]interface{}
-	e := make([]error, len(searchPaths))
+	e := make([]string, len(searchPaths))
 
 	//Use walker and visitor instead
 	for _, path := range searchPaths {
 		filepath.Walk(path, func(path string, f os.FileInfo, err error) error {
 			fileVars, err := loadVarsInFile(path, vaultPassword)
 			if err != nil {
-				e = append(e, err)
+				e = append(e, fmt.Sprintf("%v", err))
 			}
 			envVars = combineMaps(envVars, fileVars)
 			return nil
@@ -54,9 +54,9 @@ func loadEnv(searchPaths []string, vaultPassword string) map[string]interface{} 
 		
 	}
 	if envVars == nil {
-		checkErrs(e)
+		return map[string]interface{}{}, errors.New(strings.Join(e, "\n"))
 	}
-	return envVars
+	return envVars, nil
 
 }
  
