@@ -16,7 +16,7 @@ func loadedAllVars(t *testing.T, allVars map[string]interface{}  ) {
 }
 
 func TestLoadEnvVars(t *testing.T) {
-	baseFolder := "./testdata/ansible1/vmp/group_vars"
+	baseFolder := "../testdata/ansible1/vmp/group_vars"
 	vars := LoadVars(baseFolder, "myenv", "asdf")
 	if len(vars) == 0 {
 		t.Error("Expected to find entries but did not find any: ")
@@ -28,19 +28,19 @@ func TestLoadEnvVars(t *testing.T) {
 }
 
 func TestLoadEnvFromFile(t *testing.T) {
-	baseFolder := "./testdata/ansible1/vmp/group_vars"
+	baseFolder := "../testdata/ansible1/vmp/group_vars"
 	vars := LoadVars(baseFolder, "myenv2", "asdf")
 	assert.NotEmpty(t,vars, "Expected to find entries but did not find any")
 }
 
 func TestLoadEnvFromFileShortName(t *testing.T) {
-	baseFolder := "./testdata/ansible1/vmp/group_vars"
+	baseFolder := "../testdata/ansible1/vmp/group_vars"
 	vars := LoadVars(baseFolder, "myenv3.yml", "asdf")
 	assert.NotEmpty(t,vars, "Expected to find entries but did not find any")
 }
 
 func TestLoadSecretVars(t *testing.T) {
-	baseFolder := "./testdata/ansible1/vmp/group_vars"
+	baseFolder := "../testdata/ansible1/vmp/group_vars"
 	vars := LoadVars(baseFolder, "myenv", "asdf")
 	assert.NotEmpty(t, vars, "Expected to find entries but did not find any ")
 	assert.Equal(t, "{{ secret1 }}", vars["secret_reference"], "Secret not properly loaded")
@@ -48,7 +48,7 @@ func TestLoadSecretVars(t *testing.T) {
 
 
 func TestLoadVars(t *testing.T) {
-	baseFolder := "./testdata/ansible1/vmp/group_vars"
+	baseFolder := "../testdata/ansible1/vmp/group_vars"
 	vars := LoadVars(baseFolder, "myenv", "asdf")
 	if len(vars) == 0 {
 		t.Error("Expected to find entries but did not find any: ")

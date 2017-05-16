@@ -10,7 +10,7 @@ func TestGenerateConfig(t *testing.T) {
 	// Load configmap_generator
 	// print all variable prefix until a given depth
 	// optionally exclude prefixes already covered by app config
-	vars, err := SuggestConfig("./testdata/ansible1/vmp", 1)
+	vars, err := SuggestConfig("../testdata/ansible1/vmp", 1)
 	
 	assert.Contains(t, vars, "artifactory_", "Not empty")
 	assert.Contains(t, vars, "base_", "Not empty")

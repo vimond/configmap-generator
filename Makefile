@@ -8,7 +8,7 @@ build:
 	go build  ./...
 
 test:
-	go test
+	go test ./...
 
 release:
 	go get github.com/mitchellh/gox

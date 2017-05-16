@@ -6,7 +6,7 @@ import (
 
 
 func TestLoadTetsConfig(t *testing.T) {
-	appConfig := New("./testdata/test-app-config.yml")
+	appConfig := New("../testdata/test-app-config.yml")
 	expectedName := "test"
 	actualName := appConfig.Applications[0].Name
 	if actualName != expectedName {

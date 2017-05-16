@@ -21,7 +21,7 @@ func TestSubstituteVars1(t *testing.T) {
 }
 
 func TestLookupWhenSourcedFromFiles(t *testing.T) {
-	baseFolder := "./testdata/ansible1/vmp/group_vars"
+	baseFolder := "../testdata/ansible1/vmp/group_vars"
 	vars := SubstituteVars(LoadVars(baseFolder, "myenv", "asdf"))
 	
 	assert.NotEmpty(t, vars, "Expected to find entries but did not find any ")
@@ -30,7 +30,7 @@ func TestLookupWhenSourcedFromFiles(t *testing.T) {
 }
 
 func TestLookupPrecedenceWhenSourcedFromFiles_myenv(t *testing.T) {
-	baseFolder := "./testdata/ansible1/vmp/group_vars"
+	baseFolder := "../testdata/ansible1/vmp/group_vars"
 	vars := SubstituteVars(LoadVars(baseFolder, "myenv", "asdf"))
 	
 	assert.NotEmpty(t, vars, "Expected to find entries but did not find any ")
@@ -39,7 +39,7 @@ func TestLookupPrecedenceWhenSourcedFromFiles_myenv(t *testing.T) {
 }
 
 func TestLookupPrecedenceWhenSourcedFromFiles_myenv2(t *testing.T) {
-	baseFolder := "./testdata/ansible1/vmp/group_vars"
+	baseFolder := "../testdata/ansible1/vmp/group_vars"
 	vars := SubstituteVars(LoadVars(baseFolder, "myenv2", "asdf"))
 	
 	assert.NotEmpty(t, vars, "Expected to find entries but did not find any ")
@@ -48,7 +48,7 @@ func TestLookupPrecedenceWhenSourcedFromFiles_myenv2(t *testing.T) {
 }
 
 func TestNonStringsConverted(t *testing.T) {
-	baseFolder := "./testdata/ansible1/vmp/group_vars"
+	baseFolder := "../testdata/ansible1/vmp/group_vars"
 	vars := SubstituteVars(LoadVars(baseFolder, "myenv3", "asdf"))
 
 	assert.IsType(t,"string", vars["string_boolean"], "%v", vars["string_boolean"])
@@ -59,7 +59,7 @@ func TestNonStringsConverted(t *testing.T) {
 }
 
 func TestLookupSimpleInlineStringVars(t *testing.T) {
-	baseFolder := "./testdata/ansible1/vmp/group_vars"
+	baseFolder := "../testdata/ansible1/vmp/group_vars"
 	loadVars := LoadVars(baseFolder, "myenv3", "asdf")
 	substituted := replaceStringVars(loadVars["string_lookup"].(string), loadVars)
 
@@ -67,7 +67,7 @@ func TestLookupSimpleInlineStringVars(t *testing.T) {
 }
 
 func TestLookupComplexInlineStringVars(t *testing.T) {
-	baseFolder := "./testdata/ansible1/vmp/group_vars"
+	baseFolder := "../testdata/ansible1/vmp/group_vars"
 	loadVars := LoadVars(baseFolder, "myenv3", "asdf")
 	substituted := replaceStringVars(loadVars["multiline_complex_preformatted"].(string), loadVars)
 	
@@ -76,7 +76,7 @@ func TestLookupComplexInlineStringVars(t *testing.T) {
 
 
 func TestLookupComplexMultilinePeformatted_myenv3(t *testing.T) {
-	baseFolder := "./testdata/ansible1/vmp/group_vars"
+	baseFolder := "../testdata/ansible1/vmp/group_vars"
 	vars := SubstituteVars(LoadVars(baseFolder, "myenv3", "asdf"))
 	
 	assert.NotEmpty(t, vars, "Expected to find entries but did not find any ")
