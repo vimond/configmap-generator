@@ -4,8 +4,7 @@ NAME = $(DOCKER_PRIVATE_REPO)/k8s-configmap-generator
 .PHONY: build test tag_latest release ssh
 
 build:
-	go get -t -d ./...
-	go build  ./...
+	go build .
 
 test:
 	go test ./...
