@@ -11,12 +11,10 @@ test:
 
 release:
 	go get github.com/mitchellh/gox
-
-	CGO_ENABLED=0 gox -ldflags "-X main.Version=$(VERSION) -X main.BuildDate=$(DATE)" -output "dist/configmapgen_{{.OS}}_{{.Arch}}" -arch "amd64" -os "linux windows darwin" ./...
+	CGO_ENABLED=0 gox -ldflags "-X main.Version=$(VERSION) -X main.BuildDate=$(DATE)" -output "dist/configmapgen_{{.OS}}_{{.Arch}}" -arch "amd64" -os "linux windows darwin" $(shell go list ./... | grep -v '/vendor/')
 
 docker:
 	docker login -u $(ARTIFACTORY_USER) -p $(ARTIFACTORY_PASSWORD) $(DOCKER_PRIVATE_REPO)
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o cmapgen .
 	docker build  -t $(NAME):$(VERSION)  .
 	docker tag  $(NAME):$(VERSION) $(NAME):latest
 	@if ! docker images $(NAME) | awk '{ print $$2 }' | grep -qs -F $(VERSION); then echo "$(NAME) version $(VERSION) is not yet built. Please run 'make build'"; false; fi

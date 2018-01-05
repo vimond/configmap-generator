@@ -13,6 +13,14 @@ jobs:
           command: make test
 
       - run:
+          name: Run build
+          command: 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o cmapgen .
+          environment:
+            GOOS: linux
+            GOARCH: amd64
+            CGO_ENABLED: 0
+
+      - run:
           name: Build docker image
           command: make docker
 
