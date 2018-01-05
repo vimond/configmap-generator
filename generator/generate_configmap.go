@@ -8,11 +8,11 @@ import (
 )
 
 type GeneratorConfig struct {
-	AppName		string
-	Environment	string
-	GroupVars	string
+	AppName			string
+	Environment		string
+	GroupVars		string
 	VaultPassword	string
-	AppConfig	*AppConfig
+	AppConfig		*AppConfig
 }
 
 
@@ -38,6 +38,16 @@ func (config *GeneratorConfig) GenerateConfigMap() (string, error){
 	return result, nil
 }
 
+func (config *GeneratorConfig) GenerateConfigMapAsMap() (map[string]interface{}, error) {
+	allVars, err := LoadVars(config.GroupVars, config.Environment, config.VaultPassword)
+	if err != nil {
+		return map[string]interface{}{}, err
+	}
+	allVars["service_name"] = config.AppName
+	allVars = SubstituteVars(allVars)
+	return FilterVariables(config.AppConfig, allVars, config.AppName), nil
+}
+
 func getConfigMap(name string, allVars map[string]interface{}, appConfig *AppConfig) (string, error) {
 	allVars["service_name"] = name
 	allVars = SubstituteVars(allVars)
@@ -47,7 +57,6 @@ func getConfigMap(name string, allVars map[string]interface{}, appConfig *AppCon
 		AppName: name,
 		Data: string(vars2[:]),
 	}
-
 	return Generate(app)
 }
 

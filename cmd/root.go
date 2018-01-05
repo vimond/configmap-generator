@@ -3,6 +3,7 @@ package cmd
 import (
 	"log"
 	"github.com/spf13/cobra"
+	"github.com/vimond/configmap-generator/generator"
 )
 
 var (
@@ -36,4 +37,5 @@ func init() {
 		"Application `CONFIG_FILE` to use",
 	)
 	RootCmd.PersistentFlags().BoolVarP(&noHeader, "noheader", "H", false, "Do not show header")
+	RootCmd.PersistentFlags().BoolVarP(&configmap_generator.Debug, "debug", "d", false, "Print debug messages to console")
 }

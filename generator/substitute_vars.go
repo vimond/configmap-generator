@@ -33,7 +33,7 @@ func SubstituteVars(vars map[string]interface{}) (map[string]interface{}) {
 			if replace, ok := vars[varReference]; ok {
 				vars[k] = replace
 			} else {
-				os.Stderr.WriteString("Var not found: " + value + "\n")
+				debug("Var not found: " + value + "\n")
 			}
 		} else {
 			vars[k] = replaceStringVars(value, vars)
@@ -78,7 +78,7 @@ func replaceRegularVars(value string, vars map[string]interface{}) (string) {
 			if replace, ok := vars[plainVar]; ok {
 				updated = strings.Replace(updated, item, replace.(string), 1)
 			} else {
-				os.Stderr.WriteString("Var not found: " + item + "\n")
+				debug("Var not found: " + item + "\n")
 			}
 		}
 	}
@@ -159,7 +159,7 @@ func replaceLookups(value string) (string) {
 func getEnvLookup(envVar string) (string, bool) {
 	result := os.Getenv(envVar)
 	if result == "" {
-		os.Stderr.WriteString("Environment var not set: " + envVar + "\n")
+		debug("Environment var not set: " + envVar + "\n")
 		return "", false
 	} else {
 		return result, true
