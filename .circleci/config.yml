@@ -1,0 +1,29 @@
+---
+version: 2
+jobs:
+  build:
+    working_directory: /go/src/github.com/vimond/configmap-generator
+    docker:
+      - image: circleci/golang:1.8
+    steps:
+      - setup_remote_docker
+      - checkout
+      - run:
+          name: Run build
+          command: make build
+
+      - run:
+          name: Run tests
+          command: make test
+
+      - run:
+          name: Build docker image
+          command: make docker
+
+      - run:
+          name: Create release
+          command: |
+            make release
+            curl -fL https://getcli.jfrog.io | sh
+            ./jfrog rt c  --url $ARTIFACTORY_CONTEXTURL --user $ARTIFACTORY_USER --apikey $ARTIFACTORY_PASSWORD
+            ./jfrog rt u dist/
