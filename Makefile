@@ -7,7 +7,7 @@ build:
 	go build .
 
 test:
-	go test ./...
+	go test ./generator
 
 release:
 	go get github.com/mitchellh/gox
