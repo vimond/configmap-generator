@@ -9,10 +9,6 @@ jobs:
       - setup_remote_docker
       - checkout
       - run:
-          name: Run build
-          command: make build
-
-      - run:
           name: Run tests
           command: make test
 
